@@ -251,3 +251,64 @@ export interface CrisisTemplate {
   nurse_absenteeism_pct: number;
   out_of_service_bed_pct: number;
 }
+
+// ==================== MODULE 6: CARE CONTINUITY & SHAP EXPLAINABILITY ====================
+
+export interface FeatureAttributionItem {
+  feature_name: string;
+  display_name: string;
+  feature_value: number;
+  shap_value: number;
+  effect: 'risk_increasing' | 'protective' | 'neutral';
+  clinical_interpretation: string;
+}
+
+export interface PatientCohortItem {
+  encounter_id: string;
+  patient_mrn: string;
+  patient_age: number;
+  department: string;
+  disposition: string;
+  actual_los_hours: number;
+  predicted_readmission_risk: number;
+  predicted_noshow_risk?: number | null;
+  risk_tier: 'HIGH' | 'MODERATE' | 'LOW';
+  recommended_outreach: string;
+}
+
+export interface PatientRiskEvaluation {
+  encounter_id: string;
+  patient_mrn: string;
+  patient_age: number;
+  department: string;
+  predicted_readmission_risk: number;
+  predicted_noshow_risk?: number | null;
+  risk_tier: 'HIGH' | 'MODERATE' | 'LOW';
+  base_log_odds: number;
+  recommended_outreach: string;
+  feature_attributions: FeatureAttributionItem[];
+}
+
+export interface ContinuityOverviewResponse {
+  total_cohort_evaluated: number;
+  high_risk_count: number;
+  moderate_risk_count: number;
+  low_risk_count: number;
+  mean_readmission_risk: number;
+  high_risk_patients: PatientCohortItem[];
+}
+
+export interface EvaluatePatientRequest {
+  encounter_id?: string;
+  patient_mrn?: string;
+  department?: string;
+  age: number;
+  esi_score: number;
+  actual_los_hours: number;
+  prior_admissions_count: number;
+  comorbidity_count: number;
+  encounter_type?: string;
+  disposition?: string;
+  chief_complaint?: string;
+}
+

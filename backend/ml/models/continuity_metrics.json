@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "roc_auc": 0.7451,
+    "pr_auc": 0.5302,
+    "brier": 0.1596
+  },
+  "primary_ml": {
+    "roc_auc": 0.7475,
+    "pr_auc": 0.5377,
+    "brier": 0.1579
+  },
+  "noshow_roc_auc": 0.6901,
+  "model_version": "v1.0.0-gbdt-continuity"
+}

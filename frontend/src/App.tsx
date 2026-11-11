@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OverviewDashboard } from './pages/OverviewDashboard';
 import { ResourceIntelligencePage } from './pages/ResourceIntelligencePage';
 import { OptimizationPage } from './pages/OptimizationPage';
+import { ContinuityPage } from './pages/ContinuityPage';
 import { Cpu, HeartPulse } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -16,7 +17,7 @@ const queryClient = new QueryClient({
 });
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES' | 'OPTIMIZATION'>('COMMAND_CENTER');
+  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES' | 'OPTIMIZATION' | 'CONTINUITY'>('COMMAND_CENTER');
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -71,11 +72,14 @@ export const App: React.FC = () => {
                 PuLP Optimization (Phase 3)
               </button>
               <button
-                disabled
-                className="px-3 py-1.5 rounded-lg font-medium text-slate-500 cursor-not-allowed"
-                title="Phase 4: SHAP Explainability"
+                onClick={() => setActiveTab('CONTINUITY')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                  activeTab === 'CONTINUITY'
+                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
               >
-                Patient Continuity (SHAP)
+                Care Continuity & SHAP (Phase 4)
               </button>
             </nav>
           </div>
@@ -86,14 +90,15 @@ export const App: React.FC = () => {
           {activeTab === 'COMMAND_CENTER' && <OverviewDashboard />}
           {activeTab === 'RESOURCES' && <ResourceIntelligencePage />}
           {activeTab === 'OPTIMIZATION' && <OptimizationPage />}
+          {activeTab === 'CONTINUITY' && <ContinuityPage />}
         </main>
 
         {/* System Footer */}
         <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Cpu className="w-3.5 h-3.5 text-sky-400" />
-              <span>Phase 3 Activated | Modules 1, 2, 3, 4, 5, 7 Live</span>
+              <Cpu className="w-3.5 h-3.5 text-purple-400" />
+              <span>Phase 4 Activated | Modules 1, 2, 3, 4, 5, 6, 7 Live</span>
             </div>
             <div>
               <span>Decision Support Only • Authorized Clinical Supervision Required</span>

@@ -13,7 +13,11 @@ import {
   RosterAssignment,
   OptimizationResponse,
   SimulationResponse,
-  CrisisTemplate
+  CrisisTemplate,
+  ContinuityOverviewResponse,
+  PatientCohortItem,
+  PatientRiskEvaluation,
+  EvaluatePatientRequest
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -157,3 +161,35 @@ export const fetchCrisisTemplates = async (): Promise<CrisisTemplate[]> => {
   const { data } = await apiClient.get<CrisisTemplate[]>('/optimization/crisis-templates');
   return data;
 };
+
+// ==================== PHASE 4: CARE CONTINUITY & SHAP APIS ====================
+
+export const fetchContinuityOverview = async (limit: number = 100): Promise<ContinuityOverviewResponse> => {
+  const { data } = await apiClient.get<ContinuityOverviewResponse>('/continuity/overview', {
+    params: { limit },
+  });
+  return data;
+};
+
+export const fetchContinuityCohort = async (
+  tier: string = 'ALL',
+  limit: number = 50
+): Promise<PatientCohortItem[]> => {
+  const { data } = await apiClient.get<PatientCohortItem[]>('/continuity/cohort', {
+    params: { tier, limit },
+  });
+  return data;
+};
+
+export const fetchPatientRiskExplanation = async (encounterId: string): Promise<PatientRiskEvaluation> => {
+  const { data } = await apiClient.get<PatientRiskEvaluation>(`/continuity/patient/${encounterId}`);
+  return data;
+};
+
+export const evaluateCustomPatientRisk = async (
+  req: EvaluatePatientRequest
+): Promise<PatientRiskEvaluation> => {
+  const { data } = await apiClient.post<PatientRiskEvaluation>('/continuity/evaluate-patient', req);
+  return data;
+};
+
