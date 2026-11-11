@@ -7,7 +7,7 @@ An AI-powered hospital operations intelligence and decision-support platform des
 ## Academic & Project Context
 - **Course:** Master of Computer Applications (MCA) — III Semester — Machine Learning
 - **Repository:** [MCA-ML](https://github.com/smithlivingstonofficial/MCA-ML.git)
-- **Status:** Phase 0 Completed / Phase 1 (Operational MVP) in progress
+- **Status:** Phase 0 & Phase 1 (Operational MVP) Completed ✅ / Phase 2 (Resource Intelligence) Next
 
 ---
 
@@ -31,6 +31,33 @@ Comprehensive architectural and design specifications are located in the [`docs/
 - [Canonical Data Model](./docs/DATA_MODEL.md) — Entity-relationship diagrams and schema definitions.
 - [Machine Learning Roadmap](./docs/ML_ROADMAP.md) — Target variables, feature engineering, baselines, and drift monitoring.
 - [Implementation Roadmap](./docs/IMPLEMENTATION_ROADMAP.md) — Phased backlog, acceptance criteria, and task timeline.
+
+---
+
+## Running the Application Locally
+
+### 1. Start the Backend API (FastAPI)
+```bash
+# Activate virtual environment
+.\.venv\Scripts\activate
+
+# Run backend with uvicorn
+python -m uvicorn backend.app.main:app --reload --port 8000
+```
+- OpenAPI interactive documentation available at: `http://127.0.0.1:8000/docs`
+- Health check endpoint: `http://127.0.0.1:8000/health`
+
+### 2. Start the Frontend Dashboard (React + Vite)
+```bash
+cd frontend
+npm run dev
+```
+- Command Center dashboard available at: `http://localhost:5173`
+
+### 3. Run Automated Tests
+```bash
+.\.venv\Scripts\pytest -v
+```
 
 ---
 
