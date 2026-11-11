@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Index
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, Date, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from backend.app.db.session import Base
 
@@ -34,6 +34,7 @@ class Ward(Base):
     department = relationship("Department", back_populates="wards")
     beds = relationship("Bed", back_populates="ward", cascade="all, delete-orphan")
     roster_assignments = relationship("RosterAssignment", back_populates="ward")
+    equipment = relationship("Equipment", back_populates="ward")
 
 
 class Bed(Base):
@@ -94,19 +95,103 @@ class TriageObservation(Base):
     encounter = relationship("Encounter", back_populates="triage")
 
 
+# ==================== MODULE 4: WORKFORCE ENTITIES ====================
+
+class StaffMember(Base):
+    __tablename__ = "staff_members"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    employee_code = Column(String(20), unique=True, nullable=False, index=True)
+    name = Column(String(100), nullable=False)
+    role = Column(String(30), nullable=False)  # Physician, Staff_Nurse, Charge_Nurse
+    specialty_qualification = Column(String(50), nullable=False)  # Emergency, ICU, Medical_Surgical
+    is_active = Column(Boolean, default=True, nullable=False)
+
+    assignments = relationship("RosterAssignment", back_populates="staff_member")
+
+
 class RosterAssignment(Base):
     __tablename__ = "roster_assignments"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
+    staff_id = Column(String(36), ForeignKey("staff_members.id"), nullable=True)
     ward_id = Column(String(36), ForeignKey("wards.id"), nullable=False)
     staff_member_name = Column(String(100), nullable=False)
     role = Column(String(50), nullable=False)  # Doctor, Nurse, Triage Nurse
     shift_name = Column(String(20), nullable=False)  # Morning, Evening, Night
-    shift_date = Column(String(10), nullable=False)  # YYYY-MM-DD
+    shift_date = Column(String(10), nullable=False, index=True)  # YYYY-MM-DD
+    status = Column(String(20), default="Scheduled", nullable=False)  # Scheduled, Present, Absent, OnCall
     is_on_duty = Column(Boolean, default=True, nullable=False)
 
     ward = relationship("Ward", back_populates="roster_assignments")
+    staff_member = relationship("StaffMember", back_populates="assignments")
 
+
+# ==================== MODULE 3: INVENTORY & EQUIPMENT ENTITIES ====================
+
+class InventoryItem(Base):
+    __tablename__ = "inventory_items"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    sku_code = Column(String(30), unique=True, nullable=False, index=True)
+    generic_name = Column(String(100), nullable=False)
+    category = Column(String(50), nullable=False)  # Antibiotic, Analgesic, Oxygen_Supply, Blood_PRBC, Critical_Care
+    unit_of_measure = Column(String(20), nullable=False)  # Vial, Tablet, Liter, Unit
+    reorder_threshold = Column(Integer, nullable=False, default=50)
+    target_stock_level = Column(Integer, nullable=False, default=200)
+    standard_lead_time_days = Column(Integer, nullable=False, default=2)
+
+    lots = relationship("InventoryLot", back_populates="item", cascade="all, delete-orphan")
+    stock_movements = relationship("StockMovement", back_populates="item", cascade="all, delete-orphan")
+
+
+class InventoryLot(Base):
+    __tablename__ = "inventory_lots"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    item_id = Column(String(36), ForeignKey("inventory_items.id"), nullable=False, index=True)
+    lot_number = Column(String(50), nullable=False, index=True)
+    quantity_on_hand = Column(Integer, nullable=False, default=0)
+    expiry_date = Column(Date, nullable=False, index=True)
+    received_date = Column(Date, nullable=False)
+    is_quarantined = Column(Boolean, default=False, nullable=False)
+
+    item = relationship("InventoryItem", back_populates="lots")
+    stock_movements = relationship("StockMovement", back_populates="lot")
+
+
+class StockMovement(Base):
+    __tablename__ = "stock_movements"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    item_id = Column(String(36), ForeignKey("inventory_items.id"), nullable=False)
+    lot_id = Column(String(36), ForeignKey("inventory_lots.id"), nullable=True)
+    movement_type = Column(String(20), nullable=False)  # DISPENSE, RECEIVE, ADJUST, EXPIRED_DISCARD
+    quantity = Column(Integer, nullable=False)
+    reason = Column(String(255), nullable=True)
+    recorded_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    recorded_by = Column(String(50), default="system", nullable=False)
+
+    item = relationship("InventoryItem", back_populates="stock_movements")
+    lot = relationship("InventoryLot", back_populates="stock_movements")
+
+
+class Equipment(Base):
+    __tablename__ = "equipment"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    equipment_code = Column(String(30), unique=True, nullable=False, index=True)  # e.g. VENT-01, OXY-BANK-A
+    equipment_type = Column(String(50), nullable=False)  # Ventilator, Oxygen_Bank, Defibrillator, Dialysis_Machine
+    ward_id = Column(String(36), ForeignKey("wards.id"), nullable=True)
+    status = Column(String(20), default="Available", nullable=False)  # In_Use, Available, Maintenance
+    telemetry_metric_name = Column(String(50), nullable=True)  # e.g. pressure_psi, flow_rate_lpm
+    telemetry_metric_value = Column(Float, nullable=True)
+    last_service_date = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    ward = relationship("Ward", back_populates="equipment")
+
+
+# ==================== HISTORICAL AGGREGATES & FORECASTS ====================
 
 class HourlyArrivalAggregate(Base):
     __tablename__ = "hourly_arrival_aggregates"
@@ -132,4 +217,3 @@ class ForecastRecord(Base):
     upper_bound_80 = Column(Float, nullable=True)
     model_version = Column(String(50), nullable=False)
     actual_value = Column(Float, nullable=True)
-

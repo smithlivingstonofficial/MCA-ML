@@ -66,15 +66,21 @@ flowchart TD
 
 ---
 
-### Phase 2: Resource Intelligence (Modules 3 & 4)
-* **Task 2.1: Module 3 — Pharmacy, Blood & Equipment Tracking**
+### Phase 2: Resource Intelligence (Modules 3 & 4) (Status: DONE ✅)
+* [x] **Task 2.1: Module 3 — Pharmacy, Blood & Equipment Tracking**
   * Inventory management with batch/lot number, expiry date, and First Expiry, First Out (FEFO) dispensing logic.
-  * Oxygen cylinder pressure/supply tracking and ventilator utilization tracking.
-  * Intermittent demand consumption forecasting and low-stock reorder alerts.
-* **Task 2.2: Module 4 — Workforce & Clinical Staff Intelligence**
-  * Doctor and nurse shift scheduling across Morning, Evening, and Night shifts.
-  * Dynamic acuity-based staffing deficit calculations (e.g., ICU 1:1, General Ward 1:4).
-  * Departmental staff shortage warning triggers.
+  * Automatic expired lot quarantine to prevent hazardous dispensation.
+  * Low-stock reorder thresholds and replenishment deficit detection.
+  * Ventilator fleet utilization calculation and 85% capacity surge warnings.
+  * Liquid medical oxygen bulk reserve tracking with burn rate and days-of-supply forecasts.
+* [x] **Task 2.2: Module 4 — Workforce & Clinical Staff Intelligence**
+  * Multi-shift duty scheduling (Morning, Evening, Night) across wards with staff qualification tracking.
+  * Dynamic acuity-based staffing deficit calculations ($1:1$ ICU, $1:3$ Acute ED, $1:4$ General/Surgery) driven by live patient census.
+  * Departmental staff shortage warning triggers and quick attendance status toggles.
+* [x] **Task 2.3: Resource Intelligence UI & Telemetry**
+  * Interactive FEFO dispensing modal with real-time lot deduction audit feedback.
+  * Equipment dials for ventilator utilization and liquid oxygen reserves.
+  * Ward acuity coverage matrix and staff shift attendance tables.
 
 ---
 

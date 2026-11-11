@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OverviewDashboard } from './pages/OverviewDashboard';
+import { ResourceIntelligencePage } from './pages/ResourceIntelligencePage';
 import { Cpu, HeartPulse } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -14,6 +15,8 @@ const queryClient = new QueryClient({
 });
 
 export const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES'>('COMMAND_CENTER');
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-slate-950">
@@ -35,28 +38,38 @@ export const App: React.FC = () => {
             </div>
 
             {/* Navigation Tabs */}
-            <nav className="flex items-center space-x-1 text-xs">
-              <button className="px-3 py-1.5 rounded-lg font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+            <nav className="flex items-center space-x-1.5 text-xs">
+              <button
+                onClick={() => setActiveTab('COMMAND_CENTER')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                  activeTab === 'COMMAND_CENTER'
+                    ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+              >
                 Command Center (MVP)
               </button>
               <button
-                disabled
-                className="px-3 py-1.5 rounded-lg font-medium text-slate-500 cursor-not-allowed hover:text-slate-400"
-                title="Phase 2 Feature"
+                onClick={() => setActiveTab('RESOURCES')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                  activeTab === 'RESOURCES'
+                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
               >
-                Inventory & Staff
+                Resource Intelligence (Phase 2)
               </button>
               <button
                 disabled
-                className="px-3 py-1.5 rounded-lg font-medium text-slate-500 cursor-not-allowed hover:text-slate-400"
-                title="Phase 3 Feature"
+                className="px-3 py-1.5 rounded-lg font-medium text-slate-500 cursor-not-allowed"
+                title="Phase 3: PuLP MILP Optimization"
               >
                 PuLP Optimization
               </button>
               <button
                 disabled
-                className="px-3 py-1.5 rounded-lg font-medium text-slate-500 cursor-not-allowed hover:text-slate-400"
-                title="Phase 4 Feature"
+                className="px-3 py-1.5 rounded-lg font-medium text-slate-500 cursor-not-allowed"
+                title="Phase 4: SHAP Explainability"
               >
                 Patient Continuity (SHAP)
               </button>
@@ -66,7 +79,7 @@ export const App: React.FC = () => {
 
         {/* Main Body */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <OverviewDashboard />
+          {activeTab === 'COMMAND_CENTER' ? <OverviewDashboard /> : <ResourceIntelligencePage />}
         </main>
 
         {/* System Footer */}
@@ -74,7 +87,7 @@ export const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Cpu className="w-3.5 h-3.5 text-sky-400" />
-              <span>Operational MVP Baseline v1.0.0 | FastAPI + SQLite + React 18 + GBDT Poisson</span>
+              <span>Phase 2 Activated | Modules 1, 2, 3, 4, 7 Live</span>
             </div>
             <div>
               <span>Decision Support Only • Authorized Clinical Supervision Required</span>
