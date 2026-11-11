@@ -85,3 +85,4 @@ def update_assignment_status(
     db.commit()
     db.refresh(assignment)
     return assignment
+

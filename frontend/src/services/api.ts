@@ -10,7 +10,10 @@ import {
   DispenseResponse,
   EquipmentMetrics,
   WorkforceDeficitResponse,
-  RosterAssignment
+  RosterAssignment,
+  OptimizationResponse,
+  SimulationResponse,
+  CrisisTemplate
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -124,5 +127,33 @@ export const updateStaffStatus = async (
     status,
     is_on_duty: isOnDuty,
   });
+  return data;
+};
+
+// ==================== PHASE 3 APIS ====================
+
+export const runBedAllocationOptimization = async (customPatients?: any[]): Promise<OptimizationResponse> => {
+  const { data } = await apiClient.post<OptimizationResponse>(
+    '/optimization/allocate-beds',
+    customPatients || []
+  );
+  return data;
+};
+
+export const runScenarioSimulation = async (params: {
+  arrival_surge_multiplier: number;
+  nurse_absenteeism_pct: number;
+  out_of_service_bed_pct: number;
+  horizon_hours: number;
+}): Promise<SimulationResponse> => {
+  const { data } = await apiClient.post<SimulationResponse>(
+    '/optimization/simulate-scenario',
+    params
+  );
+  return data;
+};
+
+export const fetchCrisisTemplates = async (): Promise<CrisisTemplate[]> => {
+  const { data } = await apiClient.get<CrisisTemplate[]>('/optimization/crisis-templates');
   return data;
 };

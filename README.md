@@ -7,7 +7,7 @@ An AI-powered hospital operations intelligence and decision-support platform des
 ## Academic & Project Context
 - **Course:** Master of Computer Applications (MCA) — III Semester — Machine Learning
 - **Repository:** [MCA-ML](https://github.com/smithlivingstonofficial/MCA-ML.git)
-- **Status:** Phase 0, Phase 1 (Operational MVP) & Phase 2 (Resource Intelligence) Completed ✅ / Phase 3 (PuLP Optimization) Next
+- **Status:** Phase 0, 1, 2 & 3 (Optimization & Simulation) Completed ✅ / Phase 4 (Patient Continuity & SHAP) Next
 
 ---
 

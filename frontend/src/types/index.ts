@@ -182,3 +182,72 @@ export interface RosterAssignment {
   status: string;
   is_on_duty: boolean;
 }
+
+// ==================== PHASE 3 TYPES ====================
+
+export interface BedAssignment {
+  patient_id: string;
+  patient_anon_id: string;
+  esi_score: number;
+  bed_id: string;
+  bed_number: string;
+  ward_id: string;
+  ward_name: string;
+  specialty: string;
+  is_isolation_certified: boolean;
+}
+
+export interface OptimizationResponse {
+  status: string;
+  solver_message: string;
+  total_patients: number;
+  assigned_count: number;
+  unassigned_count: number;
+  execution_time_ms: number;
+  objective_value: number;
+  assignments: BedAssignment[];
+  unassigned_patients: Array<{
+    id: string;
+    patient_anon_id?: string;
+    esi_score?: number;
+    chief_complaint?: string;
+  }>;
+  diagnostics: string[];
+}
+
+export interface ScenarioMetrics {
+  arrivals_24h: number;
+  total_staffed_capacity: number;
+  ready_beds: number;
+  staffed_occupancy_pct: number;
+  hospital_stress_index?: number;
+  is_critical_overcapacity?: boolean;
+  ward_breakdown: Array<{
+    ward_code: string;
+    ward_name: string;
+    staffed_usable: number;
+    occupancy_rate: number;
+    deficit?: boolean;
+  }>;
+}
+
+export interface SimulationResponse {
+  parameters: {
+    arrival_surge_multiplier: number;
+    nurse_absenteeism_pct: number;
+    out_of_service_bed_pct: number;
+    horizon_hours: number;
+  };
+  baseline: ScenarioMetrics;
+  simulated: ScenarioMetrics;
+  recommendations: string[];
+}
+
+export interface CrisisTemplate {
+  template_key: string;
+  name: string;
+  description: string;
+  arrival_surge_multiplier: number;
+  nurse_absenteeism_pct: number;
+  out_of_service_bed_pct: number;
+}

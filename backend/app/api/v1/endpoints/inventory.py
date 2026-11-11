@@ -131,3 +131,4 @@ def get_equipment_and_oxygen_telemetry(db: Session = Depends(get_db)):
     """
     data = calculate_equipment_and_oxygen_metrics(db)
     return EquipmentMetricsResponse(**data)
+

@@ -84,17 +84,18 @@ flowchart TD
 
 ---
 
-### Phase 3: Mathematical Optimization & Scenario Simulation (Module 5)
-* **Task 3.1: PuLP Mathematical Optimization Engine**
+### Phase 3: Mathematical Optimization & Scenario Simulation (Module 5) (Status: DONE ✅)
+* [x] **Task 3.1: PuLP Mathematical Optimization Engine**
   * Formulate Mixed-Integer Linear Programming (MILP) model for Dynamic Bed & Acuity Allocation.
-  * Implement hard constraints: Acuity matching, infection isolation, and staffed ratio ceilings.
-  * Implement soft objectives: Wait time minimization, inter-ward transfer penalties, capacity balancing.
-  * Integrated CBC solver execution with execution time tracking and immutable input snapshots.
-  * Explicit `INFEASIBLE` diagnostics preventing hallucinated allocations.
-* **Task 3.2: What-If Scenario Simulator**
-  * Interactive UI sliders: Arrival surge % multiplier, Staff absenteeism %, Out-of-service beds %.
-  * One-click crisis templates: *“Flu Epidemic (+40% arrivals)”*, *“Mass Casualty (+80% trauma)”*, *“Blizzard (30% staff absent)”*.
-  * Side-by-side comparative KPI matrix: Baseline vs. Simulated outcome.
+  * Implement non-negotiable hard constraints: Acuity matching (ICU for ESI 1/2), infection isolation rules, physical bed readiness, and staffed nurse ceilings.
+  * Implement soft objectives: Wait time prioritization, unmet demand minimization, and inter-ward mismatch penalties.
+  * Integrated HiGHS MILP solver execution with millisecond execution tracking.
+  * Explicit `INFEASIBLE_CAPACITY` diagnostics preventing hallucinated or unsafe allocations.
+* [x] **Task 3.2: What-If Scenario Simulator**
+  * Interactive UI sliders: Arrival surge % multiplier (up to $2.5\times$), Staff absenteeism % ($0-50\%$), Out-of-service beds % ($0-30\%$).
+  * One-click crisis templates: *"Flu Epidemic (+40% arrivals)"*, *"Mass Casualty (+80% trauma)"*, *"Blizzard (35% staff absent)"*.
+  * Side-by-side comparative KPI matrix: Baseline vs. Simulated outcome (arrivals, staffed capacity, occupancy %, hospital stress index).
+  * Automated operational mitigation recommendations and float-pool nurse dispatch alerts.
 
 ---
 
