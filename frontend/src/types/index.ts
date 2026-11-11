@@ -312,3 +312,43 @@ export interface EvaluatePatientRequest {
   chief_complaint?: string;
 }
 
+// ==================== MODULE 7: MODEL GOVERNANCE & DRIFT ====================
+
+export interface FeatureDriftMetric {
+  psi: number;
+  status: 'STABLE' | 'MODERATE_DRIFT' | 'CRITICAL_DRIFT';
+  ks_statistic: number;
+  ks_p_value: number;
+  drift_detected: boolean;
+}
+
+export interface DataQualitySummary {
+  records_audited: number;
+  quality_score_pct: number;
+  timestamp_anomalies: number;
+  range_anomalies: number;
+  missing_critical_fields: number;
+  integrity_passed: boolean;
+}
+
+export interface ModelRegistryItem {
+  module: string;
+  model_name: string;
+  architecture: string;
+  version: string;
+  last_trained?: string;
+  validation_wape?: number;
+  validation_roc_auc?: number;
+  status: string;
+}
+
+export interface ModelGovernanceResponse {
+  evaluated_at: string;
+  overall_governance_status: 'STABLE' | 'MODERATE_DRIFT' | 'CRITICAL_DRIFT';
+  active_models: ModelRegistryItem[];
+  features: Record<string, FeatureDriftMetric>;
+  data_quality: DataQualitySummary;
+  recommendation: string;
+}
+
+

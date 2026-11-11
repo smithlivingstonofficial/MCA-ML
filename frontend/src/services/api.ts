@@ -17,7 +17,8 @@ import {
   ContinuityOverviewResponse,
   PatientCohortItem,
   PatientRiskEvaluation,
-  EvaluatePatientRequest
+  EvaluatePatientRequest,
+  ModelGovernanceResponse
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -192,4 +193,12 @@ export const evaluateCustomPatientRisk = async (
   const { data } = await apiClient.post<PatientRiskEvaluation>('/continuity/evaluate-patient', req);
   return data;
 };
+
+// ==================== PHASE 5: MODEL GOVERNANCE & DRIFT APIS ====================
+
+export const fetchModelGovernance = async (): Promise<ModelGovernanceResponse> => {
+  const { data } = await apiClient.get<ModelGovernanceResponse>('/telemetry/governance');
+  return data;
+};
+
 

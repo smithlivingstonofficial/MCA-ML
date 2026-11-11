@@ -83,5 +83,32 @@ class ExecutiveOverviewResponse(BaseModel):
     active_alerts: List[Dict[str, Any]]
     ed_arrivals_last_24h: int
     ed_forecast_next_24h: int
-    overcrowding_alert: bool
+    overcrowding_alert: bool = False
+
+
+class FeatureDriftMetric(BaseModel):
+    psi: float
+    status: str
+    ks_statistic: float
+    ks_p_value: float
+    drift_detected: bool
+
+
+class DataQualitySummary(BaseModel):
+    records_audited: int
+    quality_score_pct: float
+    timestamp_anomalies: int
+    range_anomalies: int
+    missing_critical_fields: int
+    integrity_passed: bool
+
+
+class ModelGovernanceResponse(BaseModel):
+    evaluated_at: datetime
+    overall_governance_status: str
+    active_models: List[Dict[str, Any]]
+    features: Dict[str, FeatureDriftMetric]
+    data_quality: DataQualitySummary
+    recommendation: str
+
 

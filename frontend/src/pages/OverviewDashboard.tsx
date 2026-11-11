@@ -6,12 +6,14 @@ import {
   fetchWardCapacities,
   fetchBeds,
   updateBedState,
-  fetchArrivalForecast
+  fetchArrivalForecast,
+  fetchModelGovernance
 } from '../services/api';
 import { HeaderTelemetry } from '../components/telemetry/HeaderTelemetry';
 import { ForecastChart } from '../components/charts/ForecastChart';
 import { AlertsPanel } from '../components/telemetry/AlertsPanel';
 import { BedMatrix } from '../components/beds/BedMatrix';
+import { GovernancePanel } from '../components/telemetry/GovernancePanel';
 import { BedState } from '../types';
 
 export const OverviewDashboard: React.FC = () => {
@@ -43,6 +45,12 @@ export const OverviewDashboard: React.FC = () => {
     refetchInterval: 60000,
   });
 
+  const { data: governance, isLoading: loadingGovernance, refetch: refetchGovernance } = useQuery({
+    queryKey: ['governance'],
+    queryFn: fetchModelGovernance,
+    refetchInterval: 60000,
+  });
+
   // Bed state transition mutation
   const bedStateMutation = useMutation({
     mutationFn: ({ bedId, newState, reason }: { bedId: string; newState: BedState; reason?: string }) =>
@@ -63,9 +71,10 @@ export const OverviewDashboard: React.FC = () => {
     refetchWards();
     refetchBeds();
     refetchForecast();
+    refetchGovernance();
   };
 
-  const isRefreshing = loadingTelemetry || loadingWards || loadingBeds || loadingForecast;
+  const isRefreshing = loadingTelemetry || loadingWards || loadingBeds || loadingForecast || loadingGovernance;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -110,6 +119,12 @@ export const OverviewDashboard: React.FC = () => {
         beds={beds || []}
         isLoading={loadingWards || loadingBeds}
         onStateChange={handleStateChange}
+      />
+
+      {/* 4. Model Governance & Data Drift Monitor (Module 7) */}
+      <GovernancePanel
+        governance={governance || null}
+        isLoading={loadingGovernance}
       />
     </div>
   );
