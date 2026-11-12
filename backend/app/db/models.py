@@ -217,3 +217,34 @@ class ForecastRecord(Base):
     upper_bound_80 = Column(Float, nullable=True)
     model_version = Column(String(50), nullable=False)
     actual_value = Column(Float, nullable=True)
+
+
+# ==================== MODULE 6 & 7: AUDIT LOGS & USER ACCESS ====================
+
+class AuditEvent(Base):
+    __tablename__ = "audit_events"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    actor_id = Column(String(50), nullable=False)
+    actor_role = Column(String(50), nullable=False)
+    action = Column(String(50), nullable=False, index=True)  # BED_STATE_CHANGE, MEDICATION_DISPENSED, etc.
+    module = Column(String(30), nullable=False)
+    resource_id = Column(String(64), nullable=True, index=True)
+    details = Column(String(500), nullable=False)
+    status = Column(String(20), default="SUCCESS", nullable=False)
+    ip_address = Column(String(45), default="127.0.0.1", nullable=False)
+
+
+class UserAccount(Base):
+    __tablename__ = "user_accounts"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(128), nullable=False)
+    full_name = Column(String(100), nullable=False)
+    role = Column(String(50), nullable=False)  # HOSPITAL_ADMIN, BED_MANAGER, PHARMACIST, CLINICAL_REVIEWER
+    department = Column(String(50), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
