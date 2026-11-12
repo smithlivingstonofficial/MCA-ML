@@ -18,8 +18,9 @@ flowchart TD
     P5["Phase 5: Governance, Evaluation & Viva Defense Readiness"]
     P6["Phase 6: Enterprise Interoperability, HL7 FHIR & Security"]
     P7["Phase 7: Real-Time WebSockets, Anomaly Radar & AI Copilot"]
+    P8["Phase 8: Multi-Hospital Regional Coordination & Transfer Optimization"]
 
-    P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
+    P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8
 ```
 
 ---
@@ -165,3 +166,22 @@ flowchart TD
 * [x] **Task 7.5: Automated Verification Suite (47/47 Tests Passing)**
   * Complete 47-test pytest suite covering WebSockets, statistical anomaly detection, copilot recommendation logic, and compliance dispatch audit logging.
   * 100% test success rate across all 7 project phases.
+
+---
+
+### Phase 8: Multi-Hospital Regional Coordination, Cross-Facility Transfer Optimization & Emergency Diversion Network (Status: DONE ✅)
+* [x] **Task 8.1: Multi-Hospital Regional Telemetry Engine**
+  * Integrated 4 healthcare facilities into central regional command: Metropolitan General (Hub / Level 1 Trauma), St. Jude Regional Community, North Valley Surgical, and Eastside Urgent Care.
+  * Real-time network telemetry: Composite Regional Stress Index, staffed beds, occupied beds, and ambulance transit matrix (distance and highway transit time).
+* [x] **Task 8.2: PuLP Mixed-Integer Linear Programming Regional Transfer Optimizer**
+  * Formulated multi-facility MILP model transferring stable patients from saturated facilities ($\ge 80\%$ occupancy) to receptive network partners with matching clinical specialties.
+  * Strict constraints: destination staffed bed capacity limits, specialty capability matching, and minimization of emergency ambulance transport duration.
+* [x] **Task 8.3: Emergency Ambulance Diversion Protocol & Dispatch Controls**
+  * Built facility diversion management (`NORMAL`, `ADVISORY`, `DIVERT_OVERFLOW`, `CRITICAL_LOCKDOWN`).
+  * Non-autonomous human-authorized diversion toggling with persistent compliance audit trail logging and immediate WebSocket broadcast.
+  * Inter-facility ambulance transfer authorization and vehicle dispatch workflows.
+* [x] **Task 8.4: Interactive Frontend Regional Network Command Page**
+  * Built `RegionalNetworkPage.tsx` with Network Facilities cards, PuLP Transfer Optimization Deck with one-click dispatch, Emergency Diversion matrix, and Inter-Facility Transit Matrix.
+* [x] **Task 8.5: Complete 54-Test Verification Suite**
+  * Automated pytest suite covering all 8 phases (`backend/tests/test_phase8.py`).
+  * 54 / 54 tests passing with 100% success rate.

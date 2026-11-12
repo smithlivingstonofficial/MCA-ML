@@ -483,6 +483,95 @@ export interface CopilotActionResponse {
   message: string;
 }
 
+// ==================== PHASE 8: MULTI-HOSPITAL REGIONAL COORDINATION ====================
+
+export interface HospitalFacilityTelemetry {
+  hospital_id: string;
+  hospital_name: string;
+  facility_type: string;
+  location: string;
+  total_physical_beds: number;
+  staffed_usable_beds: number;
+  occupied_beds: number;
+  available_beds: number;
+  staffed_occupancy_pct: number;
+  icu_occupancy_pct: number;
+  ed_wait_time_minutes: number;
+  ed_arrivals_past_24h: number;
+  diversion_status: 'NORMAL' | 'ADVISORY' | 'DIVERT_OVERFLOW' | 'CRITICAL_LOCKDOWN';
+  specialties_available: string[];
+  latitude: number;
+  longitude: number;
+}
+
+export interface TransitMatrixItem {
+  origin_hospital_id: string;
+  destination_hospital_id: string;
+  distance_km: number;
+  transit_time_minutes: number;
+}
+
+export interface RegionalNetworkStatusResponse {
+  evaluated_at: string;
+  network_name: string;
+  total_facilities: number;
+  network_physical_beds: number;
+  network_staffed_beds: number;
+  network_occupied_beds: number;
+  network_occupancy_pct: number;
+  network_stress_index: number;
+  active_diversions_count: number;
+  facilities: HospitalFacilityTelemetry[];
+  transit_matrix: TransitMatrixItem[];
+}
+
+export interface InterFacilityTransferRecommendation {
+  transfer_id: string;
+  urgency: 'IMMEDIATE' | 'HIGH' | 'SCHEDULED';
+  source_hospital_id: string;
+  source_hospital_name: string;
+  destination_hospital_id: string;
+  destination_hospital_name: string;
+  patient_anon_id: string;
+  triage_acuity: string;
+  specialty_required: string;
+  transit_distance_km: number;
+  transit_time_minutes: number;
+  clinical_justification: string;
+  projected_load_relief_pct: number;
+  status: 'RECOMMENDED' | 'APPROVED' | 'DISPATCHED';
+}
+
+export interface RegionalTransferOptimizationResponse {
+  computed_at: string;
+  solver_status: string;
+  total_transfers_recommended: number;
+  estimated_network_occupancy_post_transfer: number;
+  transfers: InterFacilityTransferRecommendation[];
+  optimization_summary: string;
+}
+
+export interface DispatchTransferResponse {
+  transfer_id: string;
+  status: string;
+  dispatched_at: string;
+  dispatched_by: string;
+  message: string;
+  source_hospital: string;
+  destination_hospital: string;
+}
+
+export interface ToggleDiversionResponse {
+  hospital_id: string;
+  previous_status: string;
+  new_status: string;
+  updated_at: string;
+  updated_by: string;
+  broadcast_event_id: string;
+  message: string;
+}
+
+
 
 
 

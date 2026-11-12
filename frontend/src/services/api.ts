@@ -28,7 +28,11 @@ import {
   ExecutiveBriefResponse,
   AnomalyDetectionResponse,
   CopilotRecommendationsResponse,
-  CopilotActionResponse
+  CopilotActionResponse,
+  RegionalNetworkStatusResponse,
+  RegionalTransferOptimizationResponse,
+  DispatchTransferResponse,
+  ToggleDiversionResponse
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -312,6 +316,44 @@ export const triggerLiveSimulationEvent = async (req: {
   payload?: Record<string, any>;
 }): Promise<any> => {
   const { data } = await apiClient.post<any>('/stream/trigger-event', req);
+  return data;
+};
+
+// ==================== PHASE 8: MULTI-HOSPITAL REGIONAL COORDINATION ====================
+
+export const fetchRegionalNetworkStatus = async (): Promise<RegionalNetworkStatusResponse> => {
+  const { data } = await apiClient.get<RegionalNetworkStatusResponse>('/regional/network-status');
+  return data;
+};
+
+export const fetchRegionalTransferRecommendations = async (): Promise<RegionalTransferOptimizationResponse> => {
+  const { data } = await apiClient.get<RegionalTransferOptimizationResponse>('/regional/transfer-recommendations');
+  return data;
+};
+
+export const dispatchRegionalTransfer = async (
+  transferId: string,
+  notes?: string,
+  vehicleType?: string
+): Promise<DispatchTransferResponse> => {
+  const { data } = await apiClient.post<DispatchTransferResponse>('/regional/dispatch-transfer', {
+    transfer_id: transferId,
+    notes: notes || 'Authorized by Regional Bed Operations Desk',
+    transport_vehicle_type: vehicleType || 'CRITICAL_CARE_AMBULANCE'
+  });
+  return data;
+};
+
+export const toggleRegionalDiversion = async (
+  hospitalId: string,
+  newStatus: string,
+  reason?: string
+): Promise<ToggleDiversionResponse> => {
+  const { data } = await apiClient.post<ToggleDiversionResponse>('/regional/toggle-diversion', {
+    hospital_id: hospitalId,
+    new_status: newStatus,
+    reason: reason || 'Overcrowding mitigation triggered via Regional Command Deck'
+  });
   return data;
 };
 

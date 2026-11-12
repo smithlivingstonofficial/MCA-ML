@@ -13,7 +13,8 @@ from backend.app.api.v1.endpoints import (
     reports,
     stream,
     anomalies,
-    copilot
+    copilot,
+    regional
 )
 
 api_router = APIRouter()
@@ -31,3 +32,4 @@ api_router.include_router(reports.router, prefix="/reports", tags=["Phase 6: Exe
 api_router.include_router(stream.router, prefix="/stream", tags=["Phase 7: Real-Time WebSockets & Streaming"])
 api_router.include_router(anomalies.router, prefix="/anomalies", tags=["Phase 7: Operational Anomaly Detection"])
 api_router.include_router(copilot.router, prefix="/copilot", tags=["Phase 7: AI Operations Copilot"])
+api_router.include_router(regional.router, prefix="/regional", tags=["Phase 8: Multi-Hospital Regional Coordination"])
