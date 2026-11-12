@@ -52,3 +52,4 @@ def trigger_simulated_stream_event(req: TriggerStreamEventRequest):
         "event_type": req.event_type,
         "message": req.message
     }
+

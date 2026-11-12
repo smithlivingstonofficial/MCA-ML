@@ -86,3 +86,4 @@ class CopilotActionResponse(BaseModel):
     dispatched_at: datetime
     actor_id: str
     message: str
+

@@ -112,3 +112,4 @@ def toggle_emergency_diversion(
         db=db
     )
     return ToggleDiversionResponse(**result)
+

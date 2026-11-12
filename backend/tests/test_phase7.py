@@ -122,3 +122,4 @@ def test_copilot_dispatch_nonexistent_action_returns_404():
         headers=headers
     )
     assert res.status_code == 404
+

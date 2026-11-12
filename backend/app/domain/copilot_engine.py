@@ -164,3 +164,4 @@ class HospitalOperationsCopilot:
 
 # Global Singleton
 copilot_engine = HospitalOperationsCopilot()
+

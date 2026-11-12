@@ -156,3 +156,4 @@ _anomaly_detector = HospitalAnomalyDetector()
 
 def get_anomaly_detector() -> HospitalAnomalyDetector:
     return _anomaly_detector
+

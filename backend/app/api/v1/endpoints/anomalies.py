@@ -32,3 +32,4 @@ def detect_operational_anomalies(db: Session = Depends(get_db)):
         anomalies=items,
         diagnostic_summary=report["diagnostic_summary"]
     )
+
