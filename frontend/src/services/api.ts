@@ -32,7 +32,10 @@ import {
   RegionalNetworkStatusResponse,
   RegionalTransferOptimizationResponse,
   DispatchTransferResponse,
-  ToggleDiversionResponse
+  ToggleDiversionResponse,
+  FleetStatusResponse,
+  DispatchFleetUnitResponse,
+  RegionalMCIIncidentResponse
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -354,6 +357,34 @@ export const toggleRegionalDiversion = async (
     new_status: newStatus,
     reason: reason || 'Overcrowding mitigation triggered via Regional Command Deck'
   });
+  return data;
+};
+
+export const fetchRegionalFleetStatus = async (): Promise<FleetStatusResponse> => {
+  const { data } = await apiClient.get<FleetStatusResponse>('/regional/fleet-status');
+  return data;
+};
+
+export const dispatchRegionalFleetUnit = async (req: {
+  unit_id: string;
+  transfer_id: string;
+  origin_facility_id: string;
+  destination_facility_id: string;
+  patient_anon_id: string;
+  notes?: string;
+}): Promise<DispatchFleetUnitResponse> => {
+  const { data } = await apiClient.post<DispatchFleetUnitResponse>('/regional/dispatch-fleet-unit', req);
+  return data;
+};
+
+export const triggerRegionalMCIIncident = async (req: {
+  incident_name: string;
+  estimated_casualties: number;
+  location: string;
+  triage_breakdown: Record<string, number>;
+  preferred_hub_id?: string;
+}): Promise<RegionalMCIIncidentResponse> => {
+  const { data } = await apiClient.post<RegionalMCIIncidentResponse>('/regional/mci-surge', req);
   return data;
 };
 

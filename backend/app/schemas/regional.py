@@ -104,3 +104,67 @@ class ToggleDiversionResponse(BaseModel):
     broadcast_event_id: str
     message: str
 
+
+class AmbulanceUnitTelemetry(BaseModel):
+    unit_id: str
+    callsign: str
+    vehicle_type: str  # "ADVANCED_LIFE_SUPPORT", "BASIC_LIFE_SUPPORT", "CRITICAL_CARE_HELI"
+    status: str        # "AVAILABLE", "DISPATCHED", "EN_ROUTE", "ON_SCENE", "OUT_OF_SERVICE"
+    current_assigned_transfer_id: Optional[str] = None
+    patient_anon_id: Optional[str] = None
+    origin_facility_id: Optional[str] = None
+    destination_facility_id: Optional[str] = None
+    eta_minutes: Optional[int] = None
+    oxygen_active: bool = False
+    ventilator_equipped: bool = False
+    battery_level_pct: int = 100
+    latitude: float
+    longitude: float
+
+
+class FleetStatusResponse(BaseModel):
+    evaluated_at: datetime
+    total_fleet_units: int
+    active_in_transit_count: int
+    available_units_count: int
+    units: List[AmbulanceUnitTelemetry]
+
+
+class DispatchFleetUnitRequest(BaseModel):
+    unit_id: str
+    transfer_id: str
+    origin_facility_id: str
+    destination_facility_id: str
+    patient_anon_id: str
+    notes: Optional[str] = "Dispatched via Regional Telemetry Command"
+
+
+class DispatchFleetUnitResponse(BaseModel):
+    unit_id: str
+    status: str
+    dispatched_at: datetime
+    eta_minutes: int
+    origin_facility_id: str
+    destination_facility_id: str
+    message: str
+
+
+class RegionalMCIIncidentRequest(BaseModel):
+    incident_name: str
+    estimated_casualties: int
+    location: str
+    triage_breakdown: Dict[str, int]  # e.g., {"RED_IMMEDIATE": 6, "YELLOW_DELAYED": 14, "GREEN_MINOR": 20}
+    preferred_hub_id: Optional[str] = "HOSP-01"
+
+
+class RegionalMCIIncidentResponse(BaseModel):
+    incident_id: str
+    activated_at: datetime
+    incident_name: str
+    total_casualties: int
+    network_status: str
+    allocation_plan: List[Dict[str, Any]]
+    action_directives: List[str]
+    broadcast_event_id: str
+
+

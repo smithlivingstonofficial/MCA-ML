@@ -41,7 +41,7 @@ def check_system_integrity():
 
 
 def run_tests():
-    print("[*] Launching complete 54-test pytest suite across Phases 1 to 8...")
+    print("[*] Launching complete 58-test pytest suite across Phases 1 to 8...")
     cmd = [sys.executable, "-m", "pytest", "-v"]
     result = subprocess.run(cmd)
     sys.exit(result.returncode)

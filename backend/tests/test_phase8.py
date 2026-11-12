@@ -186,3 +186,108 @@ def test_regional_stress_index_dynamics():
     data = response.json()
     stress = data["network_stress_index"]
     assert 0.0 <= stress <= 100.0
+
+
+def test_get_regional_fleet_status():
+    """
+    Verifies GET /api/v1/regional/fleet-status returns active emergency transport units.
+    """
+    resp = client.get("/api/v1/regional/fleet-status")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total_fleet_units"] >= 4
+    assert len(data["units"]) >= 4
+
+    # Check vehicle types present
+    types = [u["vehicle_type"] for u in data["units"]]
+    assert "ADVANCED_LIFE_SUPPORT" in types
+    assert "CRITICAL_CARE_HELI" in types
+
+    # Check fields
+    u1 = data["units"][0]
+    assert "unit_id" in u1
+    assert "callsign" in u1
+    assert "battery_level_pct" in u1
+    assert "latitude" in u1
+    assert "longitude" in u1
+
+
+def test_dispatch_fleet_unit(bed_manager_auth_headers):
+    """
+    Verifies dispatching a specific ambulance unit updates ETA and status.
+    """
+    resp = client.post(
+        "/api/v1/regional/dispatch-fleet-unit",
+        json={
+            "unit_id": "AMB-ALS-01",
+            "transfer_id": "XFER-HOSP-01-HOSP-02-PT-REG-104",
+            "origin_facility_id": "HOSP-01",
+            "destination_facility_id": "HOSP-02",
+            "patient_anon_id": "PT-REG-104",
+            "notes": "ALS unit assigned with paramedic escort"
+        },
+        headers=bed_manager_auth_headers
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["unit_id"] == "AMB-ALS-01"
+    assert data["status"] == "DISPATCHED"
+    assert data["eta_minutes"] > 0
+    assert data["destination_facility_id"] == "HOSP-02"
+
+
+def test_dispatch_nonexistent_fleet_unit_returns_404(bed_manager_auth_headers):
+    """
+    Verifies dispatching an unknown unit ID returns HTTP 404.
+    """
+    resp = client.post(
+        "/api/v1/regional/dispatch-fleet-unit",
+        json={
+            "unit_id": "FAKE-AMB-999",
+            "transfer_id": "XFER-999",
+            "origin_facility_id": "HOSP-01",
+            "destination_facility_id": "HOSP-02",
+            "patient_anon_id": "PT-999"
+        },
+        headers=bed_manager_auth_headers
+    )
+    assert resp.status_code == 404
+
+
+def test_trigger_regional_mci_incident(admin_auth_headers):
+    """
+    Verifies activating Code Black Regional MCI protocol distributes casualties
+    proportionally across the health network based on triage severity.
+    """
+    resp = client.post(
+        "/api/v1/regional/mci-surge",
+        json={
+            "incident_name": "Multi-Vehicle Highway Collision & Hazardous Spill",
+            "estimated_casualties": 40,
+            "location": "Interstate 95 Mile Marker 42",
+            "triage_breakdown": {
+                "RED_IMMEDIATE": 8,
+                "YELLOW_DELAYED": 16,
+                "GREEN_MINOR": 16
+            },
+            "preferred_hub_id": "HOSP-01"
+        },
+        headers=admin_auth_headers
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total_casualties"] == 40
+    assert data["network_status"] == "MCI_CODE_BLACK_ACTIVE"
+    assert len(data["allocation_plan"]) == 4
+    assert len(data["action_directives"]) >= 4
+
+    # Verify RED casualties sent to HOSP-01 Hub
+    h1_plan = next(p for p in data["allocation_plan"] if p["facility_id"] == "HOSP-01")
+    assert h1_plan["assigned_patient_count"] == 8
+    assert "RED_IMMEDIATE" in h1_plan["assigned_acuity"]
+
+    # Verify GREEN casualties diverted to HOSP-04 Urgent Care
+    h4_plan = next(p for p in data["allocation_plan"] if p["facility_id"] == "HOSP-04")
+    assert h4_plan["assigned_patient_count"] == 16
+    assert "GREEN_MINOR" in h4_plan["assigned_acuity"]
+

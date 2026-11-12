@@ -439,6 +439,267 @@ class RegionalCoordinationEngine:
             "message": f"Emergency diversion status updated to {new_status} for {fac_name}."
         }
 
+    def get_fleet_status(self) -> Dict[str, Any]:
+        """
+        Returns live telemetry and positions for all regional emergency transport units.
+        """
+        if not hasattr(self, "fleet_units"):
+            self.fleet_units = [
+                {
+                    "unit_id": "AMB-ALS-01",
+                    "callsign": "Medic-1 (ALS)",
+                    "vehicle_type": "ADVANCED_LIFE_SUPPORT",
+                    "status": "AVAILABLE",
+                    "current_assigned_transfer_id": None,
+                    "patient_anon_id": None,
+                    "origin_facility_id": "HOSP-01",
+                    "destination_facility_id": None,
+                    "eta_minutes": None,
+                    "oxygen_active": True,
+                    "ventilator_equipped": True,
+                    "battery_level_pct": 98,
+                    "latitude": 40.7180,
+                    "longitude": -74.0020
+                },
+                {
+                    "unit_id": "AMB-ALS-02",
+                    "callsign": "Medic-2 (ALS)",
+                    "vehicle_type": "ADVANCED_LIFE_SUPPORT",
+                    "status": "EN_ROUTE",
+                    "current_assigned_transfer_id": "XFER-HOSP-01-HOSP-02-PT-REG-104",
+                    "patient_anon_id": "PT-REG-104",
+                    "origin_facility_id": "HOSP-01",
+                    "destination_facility_id": "HOSP-02",
+                    "eta_minutes": 11,
+                    "oxygen_active": True,
+                    "ventilator_equipped": False,
+                    "battery_level_pct": 84,
+                    "latitude": 40.7350,
+                    "longitude": -74.0600
+                },
+                {
+                    "unit_id": "AMB-BLS-03",
+                    "callsign": "Transport-3 (BLS)",
+                    "vehicle_type": "BASIC_LIFE_SUPPORT",
+                    "status": "AVAILABLE",
+                    "current_assigned_transfer_id": None,
+                    "patient_anon_id": None,
+                    "origin_facility_id": "HOSP-03",
+                    "destination_facility_id": None,
+                    "eta_minutes": None,
+                    "oxygen_active": False,
+                    "ventilator_equipped": False,
+                    "battery_level_pct": 92,
+                    "latitude": 40.8150,
+                    "longitude": -74.0450
+                },
+                {
+                    "unit_id": "MEDEVAC-HELI-01",
+                    "callsign": "Air-Life-1 (Helicopter)",
+                    "vehicle_type": "CRITICAL_CARE_HELI",
+                    "status": "AVAILABLE",
+                    "current_assigned_transfer_id": None,
+                    "patient_anon_id": None,
+                    "origin_facility_id": "HOSP-01",
+                    "destination_facility_id": None,
+                    "eta_minutes": None,
+                    "oxygen_active": True,
+                    "ventilator_equipped": True,
+                    "battery_level_pct": 100,
+                    "latitude": 40.7128,
+                    "longitude": -74.0060
+                }
+            ]
+
+        in_transit = sum(1 for u in self.fleet_units if u["status"] in ("EN_ROUTE", "DISPATCHED"))
+        avail = sum(1 for u in self.fleet_units if u["status"] == "AVAILABLE")
+
+        return {
+            "evaluated_at": datetime.now(),
+            "total_fleet_units": len(self.fleet_units),
+            "active_in_transit_count": in_transit,
+            "available_units_count": avail,
+            "units": self.fleet_units
+        }
+
+    def dispatch_fleet_unit(
+        self,
+        unit_id: str,
+        transfer_id: str,
+        origin_id: str,
+        dest_id: str,
+        patient_anon_id: str,
+        notes: str,
+        actor_id: str,
+        actor_role: str,
+        db: Session
+    ) -> Dict[str, Any]:
+        """
+        Dispatches an ambulance or helicopter transport unit to an inter-facility transfer.
+        """
+        now = datetime.now()
+        fleet_data = self.get_fleet_status()
+        unit = next((u for u in self.fleet_units if u["unit_id"] == unit_id), None)
+        if not unit:
+            raise ValueError(f"Ambulance unit {unit_id} not found in regional registry.")
+
+        # Calculate estimated travel time
+        route = next(
+            (t for t in TRANSIT_MATRIX if t["origin_hospital_id"] == origin_id and t["destination_hospital_id"] == dest_id),
+            {"transit_time_minutes": 20}
+        )
+        eta = route["transit_time_minutes"]
+
+        unit["status"] = "DISPATCHED"
+        unit["current_assigned_transfer_id"] = transfer_id
+        unit["patient_anon_id"] = patient_anon_id
+        unit["origin_facility_id"] = origin_id
+        unit["destination_facility_id"] = dest_id
+        unit["eta_minutes"] = eta
+
+        # Record Audit Event
+        record_audit_event(
+            db=db,
+            actor_id=actor_id,
+            actor_role=actor_role,
+            module="REGIONAL_FLEET",
+            action="DISPATCH_AMBULANCE_UNIT",
+            resource_id=unit_id,
+            details=f"Dispatched {unit['callsign']} for transfer {transfer_id} ({origin_id} -> {dest_id}). Notes: {notes}",
+            status="SUCCESS"
+        )
+
+        # Broadcast WebSocket Event
+        broadcaster.broadcast_sync(
+            event_type="FLEET_UNIT_DISPATCHED",
+            message=f"Transport unit {unit['callsign']} dispatched to {dest_id} (ETA: {eta}m).",
+            module="REGIONAL_FLEET",
+            severity="INFO",
+            payload={
+                "unit_id": unit_id,
+                "callsign": unit["callsign"],
+                "transfer_id": transfer_id,
+                "origin": origin_id,
+                "destination": dest_id,
+                "eta_minutes": eta,
+                "actor_id": actor_id
+            }
+        )
+
+        return {
+            "unit_id": unit_id,
+            "status": "DISPATCHED",
+            "dispatched_at": now,
+            "eta_minutes": eta,
+            "origin_facility_id": origin_id,
+            "destination_facility_id": dest_id,
+            "message": f"{unit['callsign']} successfully dispatched to {dest_id} with estimated travel time of {eta} minutes."
+        }
+
+    def activate_mci_protocol(
+        self,
+        incident_name: str,
+        casualties: int,
+        location: str,
+        triage_breakdown: Dict[str, int],
+        hub_id: str,
+        actor_id: str,
+        actor_role: str,
+        db: Session
+    ) -> Dict[str, Any]:
+        """
+        Activates Regional Mass Casualty Incident (MCI) triage allocation protocol:
+        - RED (Immediate / ESI-1): Dispatched to Level-1 Trauma Hub
+        - YELLOW (Delayed / ESI-2-3): Distributed between St. Jude Community and North Valley Surgical
+        - GREEN (Minor / ESI-4-5): Diverted to Eastside Urgent Care to preserve trauma capacity
+        """
+        now = datetime.now()
+        incident_id = f"MCI-{int(now.timestamp())}"
+
+        red = triage_breakdown.get("RED_IMMEDIATE", max(casualties // 5, 1))
+        yellow = triage_breakdown.get("YELLOW_DELAYED", max(casualties // 3, 1))
+        green = max(casualties - (red + yellow), 0)
+
+        allocation_plan = [
+            {
+                "facility_id": "HOSP-01",
+                "facility_name": "Metropolitan General Hospital (Hub)",
+                "assigned_acuity": "RED_IMMEDIATE (Trauma Critical)",
+                "assigned_patient_count": red,
+                "trauma_bays_reserved": min(red, 12),
+                "action": "Immediate ICU trauma bay activation; on-call surgical teams deployed."
+            },
+            {
+                "facility_id": "HOSP-02",
+                "facility_name": "St. Jude Regional Community Hospital",
+                "assigned_acuity": "YELLOW_DELAYED (Acute Inpatient)",
+                "assigned_patient_count": yellow // 2,
+                "trauma_bays_reserved": 4,
+                "action": "Surge overflow beds activated; Step-down ward receiving transfer intake."
+            },
+            {
+                "facility_id": "HOSP-03",
+                "facility_name": "North Valley Surgical & Specialty Center",
+                "assigned_acuity": "YELLOW_DELAYED (Orthopedic/Surgical)",
+                "assigned_patient_count": yellow - (yellow // 2),
+                "trauma_bays_reserved": 3,
+                "action": "Post-op observation converted for stable acute monitoring."
+            },
+            {
+                "facility_id": "HOSP-04",
+                "facility_name": "Eastside Urgent Care & Recovery Center",
+                "assigned_acuity": "GREEN_MINOR (Walking Wounded / Observation)",
+                "assigned_patient_count": green,
+                "trauma_bays_reserved": 0,
+                "action": "Rapid triage walk-in station opened; absorbs low-acuity cohort."
+            }
+        ]
+
+        directives = [
+            f"CODE BLACK ACTIVATED for region: {incident_name} at {location}.",
+            f"All non-critical elective admissions at {hub_id} suspended for 24 hours.",
+            "Emergency ambulance routing protocol enforced: Minor casualties automatically diverted from Hub to Eastside Urgent Care.",
+            "Regional Blood Bank notified to stage 30 units of Type O-Negative blood at Hub trauma center."
+        ]
+
+        # Record Audit Event
+        record_audit_event(
+            db=db,
+            actor_id=actor_id,
+            actor_role=actor_role,
+            module="REGIONAL_MCI",
+            action="ACTIVATE_MCI_SURGE_PROTOCOL",
+            resource_id=incident_id,
+            details=f"Activated Regional MCI Protocol for '{incident_name}' ({casualties} casualties). Plan: Red={red}, Yellow={yellow}, Green={green}",
+            status="SUCCESS"
+        )
+
+        # Broadcast WebSocket Critical Event
+        broadcaster.broadcast_sync(
+            event_type="REGIONAL_MCI_ACTIVATED",
+            message=f"CRITICAL: Regional Mass Casualty Incident '{incident_name}' activated! {casualties} casualties distributing across alliance.",
+            module="REGIONAL_MCI",
+            severity="CRITICAL",
+            payload={
+                "incident_id": incident_id,
+                "incident_name": incident_name,
+                "casualties": casualties,
+                "location": location,
+                "allocation": allocation_plan
+            }
+        )
+
+        return {
+            "incident_id": incident_id,
+            "activated_at": now,
+            "incident_name": incident_name,
+            "total_casualties": casualties,
+            "network_status": "MCI_CODE_BLACK_ACTIVE",
+            "allocation_plan": allocation_plan,
+            "action_directives": directives,
+            "broadcast_event_id": f"evt-{incident_id}"
+        }
+
 
 # Global singleton instance
 regional_engine = RegionalCoordinationEngine()

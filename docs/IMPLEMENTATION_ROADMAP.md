@@ -181,7 +181,8 @@ flowchart TD
   * Non-autonomous human-authorized diversion toggling with persistent compliance audit trail logging and immediate WebSocket broadcast.
   * Inter-facility ambulance transfer authorization and vehicle dispatch workflows.
 * [x] **Task 8.4: Interactive Frontend Regional Network Command Page**
-  * Built `RegionalNetworkPage.tsx` with Network Facilities cards, PuLP Transfer Optimization Deck with one-click dispatch, Emergency Diversion matrix, and Inter-Facility Transit Matrix.
-* [x] **Task 8.5: Complete 54-Test Verification Suite**
-  * Automated pytest suite covering all 8 phases (`backend/tests/test_phase8.py`).
-  * 54 / 54 tests passing with 100% success rate.
+  * Built `RegionalNetworkPage.tsx` with interactive SVG Geo-Spatial topology canvas, ambulance fleet telemetry tracker, PuLP Transfer Optimization Deck with one-click dispatch, Emergency Diversion matrix, and Inter-Facility Transit Matrix.
+  * Regional Mass Casualty Incident (MCI) Command System with Code Black disaster surge simulation and automated triage allocation.
+* [x] **Task 8.5: Complete 58-Test Verification Suite**
+  * Automated pytest suite covering all 8 phases (`backend/tests/test_phase8.py` expanded to 11 tests).
+  * 58 / 58 tests passing with 100% success rate.

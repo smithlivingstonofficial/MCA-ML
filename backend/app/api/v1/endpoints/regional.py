@@ -17,7 +17,13 @@ from backend.app.schemas.regional import (
     DispatchTransferRequest,
     DispatchTransferResponse,
     ToggleDiversionRequest,
-    ToggleDiversionResponse
+    ToggleDiversionResponse,
+    AmbulanceUnitTelemetry,
+    FleetStatusResponse,
+    DispatchFleetUnitRequest,
+    DispatchFleetUnitResponse,
+    RegionalMCIIncidentRequest,
+    RegionalMCIIncidentResponse
 )
 from backend.app.core.security import get_current_user, UserAccount
 
@@ -112,4 +118,71 @@ def toggle_emergency_diversion(
         db=db
     )
     return ToggleDiversionResponse(**result)
+
+
+@router.get("/fleet-status", response_model=FleetStatusResponse)
+def get_regional_fleet_status():
+    """
+    Returns real-time locations, ETAs, and battery/equipment status for all
+    regional ambulances and helicopter medevac units.
+    """
+    data = regional_engine.get_fleet_status()
+    units = [AmbulanceUnitTelemetry(**u) for u in data["units"]]
+    return FleetStatusResponse(
+        evaluated_at=data["evaluated_at"],
+        total_fleet_units=data["total_fleet_units"],
+        active_in_transit_count=data["active_in_transit_count"],
+        available_units_count=data["available_units_count"],
+        units=units
+    )
+
+
+@router.post("/dispatch-fleet-unit", response_model=DispatchFleetUnitResponse)
+def dispatch_ambulance_unit(
+    req: DispatchFleetUnitRequest,
+    current_user: UserAccount = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Dispatches a specific ambulance or medevac helicopter unit to execute an inter-facility transfer.
+    """
+    try:
+        res = regional_engine.dispatch_fleet_unit(
+            unit_id=req.unit_id,
+            transfer_id=req.transfer_id,
+            origin_id=req.origin_facility_id,
+            dest_id=req.destination_facility_id,
+            patient_anon_id=req.patient_anon_id,
+            notes=req.notes or "Dispatched via Regional Command Desk",
+            actor_id=current_user.username,
+            actor_role=current_user.role,
+            db=db
+        )
+        return DispatchFleetUnitResponse(**res)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/mci-surge", response_model=RegionalMCIIncidentResponse)
+def trigger_regional_mci_incident(
+    req: RegionalMCIIncidentRequest,
+    current_user: UserAccount = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Triggers Code Black: Regional Mass Casualty Incident protocol.
+    Automatically assigns casualties across network based on acuity triage to preserve Hub Level-1 capacity.
+    """
+    res = regional_engine.activate_mci_protocol(
+        incident_name=req.incident_name,
+        casualties=req.estimated_casualties,
+        location=req.location,
+        triage_breakdown=req.triage_breakdown,
+        hub_id=req.preferred_hub_id or "HOSP-01",
+        actor_id=current_user.username,
+        actor_role=current_user.role,
+        db=db
+    )
+    return RegionalMCIIncidentResponse(**res)
+
 

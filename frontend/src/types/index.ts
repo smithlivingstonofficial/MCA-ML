@@ -571,6 +571,60 @@ export interface ToggleDiversionResponse {
   message: string;
 }
 
+export interface AmbulanceUnitTelemetry {
+  unit_id: string;
+  callsign: string;
+  vehicle_type: string;
+  status: 'AVAILABLE' | 'DISPATCHED' | 'EN_ROUTE' | 'ON_SCENE' | 'OUT_OF_SERVICE';
+  current_assigned_transfer_id?: string | null;
+  patient_anon_id?: string | null;
+  origin_facility_id?: string | null;
+  destination_facility_id?: string | null;
+  eta_minutes?: number | null;
+  oxygen_active: boolean;
+  ventilator_equipped: boolean;
+  battery_level_pct: number;
+  latitude: number;
+  longitude: number;
+}
+
+export interface FleetStatusResponse {
+  evaluated_at: string;
+  total_fleet_units: number;
+  active_in_transit_count: number;
+  available_units_count: number;
+  units: AmbulanceUnitTelemetry[];
+}
+
+export interface DispatchFleetUnitResponse {
+  unit_id: string;
+  status: string;
+  dispatched_at: string;
+  eta_minutes: number;
+  origin_facility_id: string;
+  destination_facility_id: string;
+  message: string;
+}
+
+export interface RegionalMCIIncidentResponse {
+  incident_id: string;
+  activated_at: string;
+  incident_name: string;
+  total_casualties: number;
+  network_status: string;
+  allocation_plan: Array<{
+    facility_id: string;
+    facility_name: string;
+    assigned_acuity: string;
+    assigned_patient_count: number;
+    trauma_bays_reserved: number;
+    action: string;
+  }>;
+  action_directives: string[];
+  broadcast_event_id: string;
+}
+
+
 
 
 
