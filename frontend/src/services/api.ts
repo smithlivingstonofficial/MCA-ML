@@ -18,7 +18,14 @@ import {
   PatientCohortItem,
   PatientRiskEvaluation,
   EvaluatePatientRequest,
-  ModelGovernanceResponse
+  ModelGovernanceResponse,
+  UserProfileResponse,
+  TokenResponse,
+  RoleInfo,
+  AuditLogResponse,
+  AuditLogItem,
+  FHIRBundleIngestResponse,
+  ExecutiveBriefResponse
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -200,5 +207,76 @@ export const fetchModelGovernance = async (): Promise<ModelGovernanceResponse> =
   const { data } = await apiClient.get<ModelGovernanceResponse>('/telemetry/governance');
   return data;
 };
+
+// ==================== PHASE 6: ENTERPRISE SECURITY, FHIR & AUDIT APIS ====================
+
+export const fetchRoles = async (): Promise<RoleInfo[]> => {
+  const { data } = await apiClient.get<RoleInfo[]>('/auth/roles');
+  return data;
+};
+
+export const login = async (username: string, password: string): Promise<TokenResponse> => {
+  const { data } = await apiClient.post<TokenResponse>('/auth/login', { username, password });
+  if (data.access_token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
+  }
+  return data;
+};
+
+export const fetchCurrentUser = async (): Promise<UserProfileResponse> => {
+  const { data } = await apiClient.get<UserProfileResponse>('/auth/me');
+  return data;
+};
+
+export const fetchAuditLogs = async (
+  module?: string,
+  action?: string,
+  actorRole?: string,
+  limit: number = 50
+): Promise<AuditLogResponse> => {
+  const { data } = await apiClient.get<AuditLogResponse>('/audit/logs', {
+    params: {
+      module: module && module !== 'ALL' ? module : undefined,
+      action: action && action !== 'ALL' ? action : undefined,
+      actor_role: actorRole && actorRole !== 'ALL' ? actorRole : undefined,
+      limit
+    }
+  });
+  return data;
+};
+
+export const recordAuditLog = async (req: {
+  action: string;
+  module: string;
+  resource_id?: string;
+  details: string;
+  status?: string;
+}): Promise<AuditLogItem> => {
+  const { data } = await apiClient.post<AuditLogItem>('/audit/log', req);
+  return data;
+};
+
+export const fetchExecutiveBrief = async (): Promise<ExecutiveBriefResponse> => {
+  const { data } = await apiClient.get<ExecutiveBriefResponse>('/reports/executive-brief');
+  return data;
+};
+
+export const fetchFHIRBeds = async (): Promise<any> => {
+  const { data } = await apiClient.get<any>('/fhir/export/beds');
+  return data;
+};
+
+export const fetchFHIRHospitalBundle = async (limitEncounters: number = 25): Promise<any> => {
+  const { data } = await apiClient.get<any>('/fhir/export/hospital-bundle', {
+    params: { limit_encounters: limitEncounters }
+  });
+  return data;
+};
+
+export const ingestFHIRBundle = async (bundle: any): Promise<FHIRBundleIngestResponse> => {
+  const { data } = await apiClient.post<FHIRBundleIngestResponse>('/fhir/bundle', bundle);
+  return data;
+};
+
 
 

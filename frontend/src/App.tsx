@@ -4,6 +4,7 @@ import { OverviewDashboard } from './pages/OverviewDashboard';
 import { ResourceIntelligencePage } from './pages/ResourceIntelligencePage';
 import { OptimizationPage } from './pages/OptimizationPage';
 import { ContinuityPage } from './pages/ContinuityPage';
+import { EnterprisePage } from './pages/EnterprisePage';
 import { Cpu, HeartPulse } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -17,7 +18,7 @@ const queryClient = new QueryClient({
 });
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES' | 'OPTIMIZATION' | 'CONTINUITY'>('COMMAND_CENTER');
+  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES' | 'OPTIMIZATION' | 'CONTINUITY' | 'ENTERPRISE'>('COMMAND_CENTER');
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -81,6 +82,16 @@ export const App: React.FC = () => {
               >
                 Care Continuity & SHAP (Phase 4)
               </button>
+              <button
+                onClick={() => setActiveTab('ENTERPRISE')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                  activeTab === 'ENTERPRISE'
+                    ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+              >
+                Enterprise & Audit (Phase 6)
+              </button>
             </nav>
           </div>
         </header>
@@ -91,14 +102,15 @@ export const App: React.FC = () => {
           {activeTab === 'RESOURCES' && <ResourceIntelligencePage />}
           {activeTab === 'OPTIMIZATION' && <OptimizationPage />}
           {activeTab === 'CONTINUITY' && <ContinuityPage />}
+          {activeTab === 'ENTERPRISE' && <EnterprisePage />}
         </main>
 
         {/* System Footer */}
         <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Cpu className="w-3.5 h-3.5 text-purple-400" />
-              <span>Phase 4 Activated | Modules 1, 2, 3, 4, 5, 6, 7 Live</span>
+              <Cpu className="w-3.5 h-3.5 text-teal-400" />
+              <span>Phase 6 Activated | Modules 1 to 7 Complete | HL7 FHIR & RBAC Live</span>
             </div>
             <div>
               <span>Decision Support Only • Authorized Clinical Supervision Required</span>

@@ -351,4 +351,74 @@ export interface ModelGovernanceResponse {
   recommendation: string;
 }
 
+// ==================== PHASE 6: ENTERPRISE SECURITY, FHIR & AUDIT ====================
+
+export interface UserProfileResponse {
+  id: string;
+  username: string;
+  full_name: string;
+  role: string;
+  department?: string | null;
+  is_active: boolean;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  user: UserProfileResponse;
+}
+
+export interface RoleInfo {
+  role_key: string;
+  title: string;
+  description: string;
+  demo_username: string;
+  permissions: string[];
+}
+
+export interface AuditLogItem {
+  id: string;
+  timestamp: string;
+  actor_id: string;
+  actor_role: string;
+  action: string;
+  module: string;
+  resource_id?: string | null;
+  details: string;
+  status: string;
+  ip_address: string;
+}
+
+export interface AuditLogResponse {
+  total_events: number;
+  events: AuditLogItem[];
+}
+
+export interface FHIRBundleIngestResponse {
+  status: string;
+  total_entries_processed: number;
+  encounters_ingested: number;
+  locations_acknowledged: number;
+  message: string;
+}
+
+export interface ExecutiveBriefResponse {
+  generated_at: string;
+  hospital_name: string;
+  total_physical_beds: number;
+  total_staffed_beds: number;
+  hospital_occupancy_pct: number;
+  staffed_occupancy_pct: number;
+  ed_arrivals_past_24h: number;
+  ed_forecast_next_24h: number;
+  overcrowding_surge_risk: boolean;
+  oxygen_days_remaining: number;
+  ventilator_utilization_pct: number;
+  critical_staffing_deficits: number;
+  high_readmission_risk_cohort_count: number;
+  model_governance_status: string;
+  active_alerts_count: number;
+}
+
+
 
