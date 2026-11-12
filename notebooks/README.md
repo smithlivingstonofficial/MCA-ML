@@ -44,3 +44,4 @@ Alternatively, open any `.ipynb` file directly in **VS Code** with the Python / 
 ### 3. Module 6: Explainable AI (SHAP)
 * Evaluators will ask whether SHAP explains disease etiology or treatment efficacy.
 * **Defense:** SHAP provides mathematical feature contribution weights ($\phi_j$) to the model's prediction log-odds. It indicates model transparency, not medical or biological causation.
+

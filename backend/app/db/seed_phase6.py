@@ -4,7 +4,7 @@ Module 6 & 7: Seed demo users and initial compliance audit logs for Phase 6.
 
 import hashlib
 from datetime import datetime, timedelta
-from backend.app.db.session import SessionLocal
+from backend.app.db.session import SessionLocal, engine, Base
 from backend.app.db.models import UserAccount, AuditEvent
 
 
@@ -13,6 +13,7 @@ def hash_password(password: str) -> str:
 
 
 def seed_phase6_security_and_audit():
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         # 1. Seed User Accounts if not present
