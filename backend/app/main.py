@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from backend.app.core.config import settings
 from backend.app.api.v1.api import api_router
 from backend.app.db.session import engine, Base
@@ -38,13 +40,18 @@ def health_check():
     }
 
 
-@app.get("/", tags=["System"])
-def root_info():
-    return {
-        "message": "Welcome to Integrated Hospital Operations Intelligence Platform API",
-        "documentation": "/docs",
-        "health": "/health"
-    }
+# Mount React frontend static files if built
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist"))
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="static")
+else:
+    @app.get("/", tags=["System"])
+    def root_info():
+        return {
+            "message": "Welcome to Integrated Hospital Operations Intelligence Platform API",
+            "documentation": "/docs",
+            "health": "/health"
+        }
 
 
 if __name__ == "__main__":

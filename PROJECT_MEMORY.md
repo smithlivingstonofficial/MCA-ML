@@ -446,6 +446,7 @@ Append durable decisions here. Do not erase history; mark superseded decisions c
 | 2026-11-10 | Commit to seed-controlled Multi-Scenario Synthetic Data Generator | Enables deterministic testing across baseline, surge, and catastrophe scenarios without privacy exposure | Active |
 | 2026-11-10 | Implement PuLP MILP for Dynamic Bed & Acuity Allocation with strict hard constraints | Prevents unsafe clinical assignments; returns explicit infeasible diagnostics when capacity is exceeded | Active |
 | 2026-11-10 | Finalize and approve Phase 0 Documentation Suite in `docs/` | Formulates the definitive architecture, data model, ML roadmap, and implementation backlog | Active |
+| 2026-11-12 | Complete full-stack verification across Phases 1 through 5 | Seeded SQLite database with 15,000 encounters and Phase 2 resources, passed 34/34 tests, built React production bundle, and mounted SPA on FastAPI | Active |
 | 2026-11-11 | Complete Phase 1: Operational MVP (ED Forecasting + Bed Lifecycle + Command Center UI) | HistGBDT out-performed Seasonal Naive (+25.48% WAPE); strict 6-state bed FSM enforced | Active |
 | 2026-11-11 | Complete Phase 2: Resource Intelligence (FEFO Dispensing + Ventilator/Oxygen Telemetry + Workforce Deficit) | Enforces First-Expiry-First-Out, quarantine of expired stock, and strict nurse-to-patient ratios | Active |
 | 2026-11-11 | Complete Phase 3: Mathematical Optimization & Surge Simulation (PuLP MILP + What-If Crisis Templates) | Strict hard constraints for ICU acuity & isolation matching; deterministic slack diagnostic | Active |
