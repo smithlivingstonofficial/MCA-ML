@@ -420,5 +420,69 @@ export interface ExecutiveBriefResponse {
   active_alerts_count: number;
 }
 
+// ==================== PHASE 7: REAL-TIME WEBSOCKETS, ANOMALIES & COPILOT ====================
+
+export interface WebSocketEventMessage {
+  event_id: string;
+  event_type: string;
+  timestamp: string;
+  module: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  message: string;
+  payload?: Record<string, any>;
+}
+
+export interface OperationalAnomalyItem {
+  anomaly_id: string;
+  category: string;
+  severity: 'CRITICAL' | 'WARNING' | 'INFO';
+  target_entity: string;
+  detected_value: number;
+  expected_baseline: number;
+  z_score: number;
+  anomaly_score: number;
+  title: string;
+  root_cause_analysis: string;
+  detected_at: string;
+}
+
+export interface AnomalyDetectionResponse {
+  evaluated_at: string;
+  anomalies_detected_count: number;
+  critical_count: number;
+  warning_count: number;
+  overall_operational_health_score: number;
+  anomalies: OperationalAnomalyItem[];
+  diagnostic_summary: string;
+}
+
+export interface CopilotRecommendationItem {
+  recommendation_id: string;
+  urgency: 'IMMEDIATE' | 'HIGH' | 'MEDIUM';
+  category: string;
+  title: string;
+  rationalization: string;
+  recommended_action: string;
+  projected_impact: string;
+  status: 'PENDING' | 'ACKNOWLEDGED' | 'DISPATCHED';
+  target_department: string;
+  created_at: string;
+}
+
+export interface CopilotRecommendationsResponse {
+  total_recommendations: number;
+  immediate_actions_count: number;
+  recommendations: CopilotRecommendationItem[];
+}
+
+export interface CopilotActionResponse {
+  recommendation_id: string;
+  status: string;
+  dispatched_at: string;
+  actor_id: string;
+  message: string;
+}
+
+
 
 

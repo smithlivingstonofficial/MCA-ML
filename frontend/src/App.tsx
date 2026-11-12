@@ -5,6 +5,7 @@ import { ResourceIntelligencePage } from './pages/ResourceIntelligencePage';
 import { OptimizationPage } from './pages/OptimizationPage';
 import { ContinuityPage } from './pages/ContinuityPage';
 import { EnterprisePage } from './pages/EnterprisePage';
+import { LiveDeckPage } from './pages/LiveDeckPage';
 import { Cpu, HeartPulse } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -18,7 +19,7 @@ const queryClient = new QueryClient({
 });
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES' | 'OPTIMIZATION' | 'CONTINUITY' | 'ENTERPRISE'>('COMMAND_CENTER');
+  const [activeTab, setActiveTab] = useState<'COMMAND_CENTER' | 'RESOURCES' | 'OPTIMIZATION' | 'CONTINUITY' | 'ENTERPRISE' | 'LIVE_DECK'>('LIVE_DECK');
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -92,6 +93,17 @@ export const App: React.FC = () => {
               >
                 Enterprise & Audit (Phase 6)
               </button>
+              <button
+                onClick={() => setActiveTab('LIVE_DECK')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'LIVE_DECK'
+                    ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                Live Deck & Copilot (Phase 7)
+              </button>
             </nav>
           </div>
         </header>
@@ -103,14 +115,15 @@ export const App: React.FC = () => {
           {activeTab === 'OPTIMIZATION' && <OptimizationPage />}
           {activeTab === 'CONTINUITY' && <ContinuityPage />}
           {activeTab === 'ENTERPRISE' && <EnterprisePage />}
+          {activeTab === 'LIVE_DECK' && <LiveDeckPage />}
         </main>
 
         {/* System Footer */}
         <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Cpu className="w-3.5 h-3.5 text-teal-400" />
-              <span>Phase 6 Activated | Modules 1 to 7 Complete | HL7 FHIR & RBAC Live</span>
+              <Cpu className="w-3.5 h-3.5 text-rose-400" />
+              <span>Phase 7 Activated | Real-Time WebSockets, Anomaly Radar & AI Copilot Live</span>
             </div>
             <div>
               <span>Decision Support Only • Authorized Clinical Supervision Required</span>

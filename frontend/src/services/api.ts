@@ -25,7 +25,10 @@ import {
   AuditLogResponse,
   AuditLogItem,
   FHIRBundleIngestResponse,
-  ExecutiveBriefResponse
+  ExecutiveBriefResponse,
+  AnomalyDetectionResponse,
+  CopilotRecommendationsResponse,
+  CopilotActionResponse
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -275,6 +278,40 @@ export const fetchFHIRHospitalBundle = async (limitEncounters: number = 25): Pro
 
 export const ingestFHIRBundle = async (bundle: any): Promise<FHIRBundleIngestResponse> => {
   const { data } = await apiClient.post<FHIRBundleIngestResponse>('/fhir/bundle', bundle);
+  return data;
+};
+
+// ==================== PHASE 7: REAL-TIME STREAMING, ANOMALIES & COPILOT ====================
+
+export const fetchOperationalAnomalies = async (): Promise<AnomalyDetectionResponse> => {
+  const { data } = await apiClient.get<AnomalyDetectionResponse>('/anomalies/detect');
+  return data;
+};
+
+export const fetchCopilotRecommendations = async (): Promise<CopilotRecommendationsResponse> => {
+  const { data } = await apiClient.get<CopilotRecommendationsResponse>('/copilot/recommendations');
+  return data;
+};
+
+export const dispatchCopilotAction = async (
+  recommendationId: string,
+  notes?: string
+): Promise<CopilotActionResponse> => {
+  const { data } = await apiClient.post<CopilotActionResponse>(
+    `/copilot/action/${recommendationId}/dispatch`,
+    { notes: notes || 'Authorized via AI Copilot Command Deck' }
+  );
+  return data;
+};
+
+export const triggerLiveSimulationEvent = async (req: {
+  event_type: string;
+  message: string;
+  module?: string;
+  severity?: 'INFO' | 'WARNING' | 'CRITICAL';
+  payload?: Record<string, any>;
+}): Promise<any> => {
+  const { data } = await apiClient.post<any>('/stream/trigger-event', req);
   return data;
 };
 

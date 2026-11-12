@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.api.v1.api import api_router
+from backend.app.api.v1.endpoints.stream import router as stream_router
 from backend.app.db.session import engine, Base
 
 # Create tables if not present
@@ -26,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(stream_router)  # Exposes /ws/live-stream directly at root as well
 
 
 @app.get("/health", tags=["System"])

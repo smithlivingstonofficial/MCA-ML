@@ -10,7 +10,10 @@ from backend.app.api.v1.endpoints import (
     auth,
     fhir,
     audit,
-    reports
+    reports,
+    stream,
+    anomalies,
+    copilot
 )
 
 api_router = APIRouter()
@@ -25,3 +28,6 @@ api_router.include_router(auth.router, prefix="/auth", tags=["Phase 6: Authentic
 api_router.include_router(fhir.router, prefix="/fhir", tags=["Phase 6: HL7 FHIR Interoperability"])
 api_router.include_router(audit.router, prefix="/audit", tags=["Phase 6: Clinical Audit Trail"])
 api_router.include_router(reports.router, prefix="/reports", tags=["Phase 6: Executive Reports & Data Export"])
+api_router.include_router(stream.router, prefix="/stream", tags=["Phase 7: Real-Time WebSockets & Streaming"])
+api_router.include_router(anomalies.router, prefix="/anomalies", tags=["Phase 7: Operational Anomaly Detection"])
+api_router.include_router(copilot.router, prefix="/copilot", tags=["Phase 7: AI Operations Copilot"])
